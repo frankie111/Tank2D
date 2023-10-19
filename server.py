@@ -19,39 +19,38 @@ s.listen(2)
 print("Waiting for a connection")
 
 currentId = "0"
-pos = ["0:50,50", "1:100,100"]
+pos = ["0:100,100", "1:100,100"]
 
 
-def threaded_client(conn):
+def threaded_client(connection):
     global currentId, pos
-    conn.send(str.encode(currentId))
+    connection.send(str.encode(currentId))
     currentId = "1"
     reply = ''
     while True:
         try:
-            data = conn.recv(2048)
+            data = connection.recv(2048)
             reply = data.decode('utf-8')
             if not data:
-                conn.send(str.encode("Goodbye"))
+                connection.send(str.encode("Goodbye"))
                 break
             else:
                 print("Recieved: " + reply)
                 arr = reply.split(":")
-                id = int(arr[0])
-                pos[id] = reply
+                curr_id = int(arr[0])
+                pos[curr_id] = reply
 
-                if id == 0: nid = 1
-                if id == 1: nid = 0
+                next_id = 1 if curr_id == 0 else 0
 
-                reply = pos[nid][:]
+                reply = pos[next_id][:]
                 print("Sending: " + reply)
 
-            conn.sendall(str.encode(reply))
+            connection.sendall(str.encode(reply))
         except:
             break
 
     print("Connection Closed")
-    conn.close()
+    connection.close()
 
 
 while True:

@@ -1,34 +1,8 @@
 import pygame
 
+from Canvas import Canvas
+from Player import Player
 from network import Network
-
-
-class Player:
-    width = height = 50
-
-    def __init__(self, startx, starty, color=(255, 0, 0)):
-        self.x = startx
-        self.y = starty
-        self.velocity = 2
-        self.color = color
-
-    def draw(self, g):
-        pygame.draw.rect(g, self.color, (self.x, self.y, self.width, self.height), 0)
-
-    def move(self, dirn):
-        """
-        :param dirn: 0 - 3 (right, left, up, down)
-        :return: None
-        """
-
-        if dirn == 0:
-            self.x += self.velocity
-        elif dirn == 1:
-            self.x -= self.velocity
-        elif dirn == 2:
-            self.y -= self.velocity
-        else:
-            self.y += self.velocity
 
 
 class Game:
@@ -37,8 +11,8 @@ class Game:
         self.net = Network()
         self.width = w
         self.height = h
-        self.player = Player(50, 50)
-        self.player2 = Player(100, 100)
+        self.player = Player(50, 100)
+        self.player2 = Player(self.width - 50, 100)
         self.canvas = Canvas(self.width, self.height, "Tank2D")
 
     def run(self):
@@ -99,29 +73,3 @@ class Game:
             return int(d[0]), int(d[1])
         except:
             return 0, 0
-
-
-class Canvas:
-
-    def __init__(self, w, h, name="None"):
-        self.width = w
-        self.height = h
-        self.screen = pygame.display.set_mode((w, h))
-        pygame.display.set_caption(name)
-
-    @staticmethod
-    def update():
-        pygame.display.update()
-
-    def draw_text(self, text, size, x, y):
-        pygame.font.init()
-        font = pygame.font.SysFont("comicsans", size)
-        render = font.render(text, 1, (0, 0, 0))
-
-        self.screen.draw(render, (x, y))
-
-    def get_canvas(self):
-        return self.screen
-
-    def draw_background(self):
-        self.screen.fill((180, 180, 180))
