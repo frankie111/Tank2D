@@ -1,8 +1,16 @@
+import math
+
 import pygame
 
 from Canvas import Canvas
 from Player import Player
 from network import Network
+
+
+def get_angle(tank_position, mouse_position):
+    x_diff = mouse_position[0] - tank_position[0]
+    y_diff = mouse_position[1] - tank_position[1]
+    return math.atan2(y_diff, x_diff)
 
 
 class Game:
@@ -46,6 +54,10 @@ class Game:
                 if self.player.y <= self.height - self.player.velocity:
                     self.player.move(3)
 
+            mouse_position = pygame.mouse.get_pos()
+            angle = get_angle(self.player.sprite_rect.center, mouse_position)
+            self.player.rotate(-angle)  # Note: the negative sign is used to rotate in the correct direction.
+
             # Send Network Stuff
             self.player2.x, self.player2.y = self.parse_data(self.send_data())
 
@@ -59,10 +71,12 @@ class Game:
 
     def send_data(self):
         """
-        Send position to server
+        Send position and rotation to server
         :return: None
         """
-        data = str(self.net.id) + ":" + str(self.player.x) + "," + str(self.player.y)
+        # Assuming you've added a get_rotation() method to the Player class
+        rotation = self.player.get_rotation()
+        data = str(self.net.id) + ":" + str(self.player.x) + "," + str(self.player.y) + "," + str(rotation)
         reply = self.net.send(data)
         return reply
 

@@ -1,3 +1,5 @@
+import math
+
 import pygame
 
 
@@ -6,14 +8,16 @@ class Player:
         self.x = start_x
         self.y = start_y
         self.velocity = 2
+        self.rotation_angle = 0  # Initialize rotation angle
 
-        # Load the sprite
-        self.sprite = pygame.image.load(sprite_path)
+        # Load the original sprite
+        self.original_sprite = pygame.image.load(sprite_path)
 
         # Scale the sprite if scale parameter is provided
         if scale:
-            self.sprite = pygame.transform.scale(self.sprite, scale)
+            self.original_sprite = pygame.transform.scale(self.original_sprite, scale)
 
+        self.sprite = self.original_sprite.copy()  # Ensure that we start with a scaled sprite
         self.sprite_rect = self.sprite.get_rect()
         self.sprite_rect.center = (self.x, self.y)
 
@@ -38,3 +42,13 @@ class Player:
 
         # Update the sprite's position
         self.sprite_rect.center = (self.x, self.y)
+
+    def rotate(self, angle):
+        self.rotation_angle = angle  # Update rotation angle
+        # Rotate the sprite around its center
+        self.sprite = pygame.transform.rotate(self.original_sprite, math.degrees(angle))
+        self.sprite_rect = self.sprite.get_rect(center=self.sprite_rect.center)
+
+    def get_rotation(self):
+        """Return the current rotation angle of the player."""
+        return self.rotation_angle
