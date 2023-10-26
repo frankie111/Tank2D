@@ -1,9 +1,11 @@
 import math
 
 import pygame
+from pygame import Vector2
 
 from entities.Direction import Direction
 from entities.Player import Player
+from entities.Projectile import Projectile
 from logic.Canvas import Canvas
 
 
@@ -19,7 +21,7 @@ class Game:
         self.width = w
         self.height = h
         self.canvas = Canvas(self.width, self.height, "Tank2D")
-        self.player = Player(50, 100, self.canvas.get_canvas())
+        self.player = Player(50, 100)
 
     def run(self):
         clock = pygame.time.Clock()
@@ -53,9 +55,19 @@ class Game:
                     and self.player.sprite_rect.bottom <= self.height - self.player.velocity):
                 self.player.move(Direction.DOWN)
 
+            self.player.move_projectiles()
+
             mouse_position = pygame.mouse.get_pos()
             angle = get_angle(self.player.sprite_rect, mouse_position)
             self.player.rotate(angle)
+
+            if pygame.mouse.get_pressed()[0]:
+                # get direction vector
+                direction = Vector2(float(mouse_position[0] - self.player.sprite_rect.center[0]),
+                                    float(mouse_position[1] - self.player.sprite_rect.center[1]))
+                #normalize direction vector
+                direction = direction.normalize()
+                self.player.create_projectile(Projectile(start_pos=self.player.sprite_rect.center, direction=direction))
 
             self.canvas.draw_background()
             self.player.draw_hitbox(self.canvas.get_canvas())

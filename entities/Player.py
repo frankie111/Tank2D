@@ -8,7 +8,7 @@ class Player:
         self.velocity = 2
         self.rotation_angle = 0
         # load the original sprite
-        self.original_sprite = pygame.image.load(sprite_path).convert_alpha()
+        self.original_sprite = pygame.image.load(sprite_path)
         # Scale the sprite
         if scale:
             self.original_sprite = pygame.transform.scale(self.original_sprite, scale)
@@ -17,8 +17,12 @@ class Player:
         self.sprite_rect = self.sprite.get_rect()
         self.sprite_rect.center = (start_x, start_y)
 
+        self.projectiles = []
+
     def draw(self, screen):
         screen.blit(self.sprite, self.sprite_rect)  # Draw the tank sprite in the pos of sprite_rect
+        for projectile in self.projectiles:
+            projectile.draw(screen)
 
     def draw_hitbox(self, screen):
         hitbox_color = (82, 5, 0)
@@ -39,7 +43,14 @@ class Player:
         if direction == Direction.DOWN:
             self.sprite_rect.y += self.velocity
 
+    def move_projectiles(self):
+        for projectile in self.projectiles:
+            projectile.move()
+
     def rotate(self, angle):
         self.rotation_angle = angle
         self.sprite = pygame.transform.rotate(self.original_sprite, angle)
         self.sprite_rect = self.sprite.get_rect(center=self.sprite_rect.center)
+
+    def create_projectile(self, proj):
+        self.projectiles.append(proj)
