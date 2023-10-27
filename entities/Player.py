@@ -4,7 +4,7 @@ from entities.Direction import Direction
 
 
 class Player:
-    def __init__(self, start_x, start_y, sprite_path="../resources/tank_sprite.png", scale=(29*4, 14*4)):
+    def __init__(self, start_x, start_y, sprite_path="../resources/tank_sprite.png", scale=(29 * 4, 14 * 4)):
         self.velocity = 1.0
         self.rotation_angle = 0
         self.gun_length = 65
@@ -55,3 +55,6 @@ class Player:
 
     def create_projectile(self, proj):
         self.projectiles.append(proj)
+
+    def destroy_projectile(self, proj):
+        self.projectiles.remove(proj)
