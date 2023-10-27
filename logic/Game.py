@@ -1,4 +1,5 @@
 import math
+from math import *
 
 import pygame
 from pygame import Vector2
@@ -16,14 +17,14 @@ class Game:
         self.canvas = Canvas(self.width, self.height, "Tank2D")
         self.player = Player(400, 300)
         self.last_shot_time = 0
-        self.shoot_cooldown = 500
+        self.shoot_cooldown = 50
 
     def run(self):
         clock = pygame.time.Clock()
         run = True
 
         while run:
-            clock.tick(60)
+            clock.tick(240)
 
             current_time = pygame.time.get_ticks()  # Get the current time in milliseconds
 
@@ -54,14 +55,16 @@ class Game:
 
             self.player.move_projectiles()
 
-            angle = self.get_angle()
+            angle, heading = self.get_angle_heading()
             self.player.rotate(angle)
 
             if (pygame.mouse.get_pressed()[0]
                     and current_time - self.last_shot_time >= self.shoot_cooldown):
-                # get direction vector
-                heading = self.angle_to_vector(angle)
-                self.player.create_projectile(Projectile(start_pos=self.player.sprite_rect.center, heading=heading))
+                proj_x = self.player.sprite_rect.centerx + self.player.gun_length * cos(radians(angle))
+                proj_y = self.player.sprite_rect.centery - self.player.gun_length * sin(radians(angle))
+                proj_pos = Vector2(proj_x, proj_y)
+                # self.player.create_projectile(Projectile(start_pos=self.player.sprite_rect.center, heading=heading))
+                self.player.create_projectile(Projectile(start_pos=proj_pos, heading=heading))
                 self.last_shot_time = current_time
 
             self.canvas.draw_background()
@@ -71,12 +74,8 @@ class Game:
 
         pygame.quit()
 
-    def get_angle(self):
+    def get_angle_heading(self):
         mouse_pos = pygame.mouse.get_pos()
-        x_dist = mouse_pos[0] - self.player.sprite_rect.center[0]
-        y_dist = -(mouse_pos[1] - self.player.sprite_rect.center[1])
-        return math.degrees(math.atan2(y_dist, x_dist))
-
-    @staticmethod
-    def angle_to_vector(angle):
-        return Vector2(math.cos(math.radians(angle)), -math.sin(math.radians(angle)))
+        heading = (mouse_pos - Vector2(self.player.sprite_rect.center)).normalize()
+        angle = math.degrees(math.atan2(-heading.y, heading.x))
+        return angle, heading
