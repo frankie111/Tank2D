@@ -67,7 +67,7 @@ class Game:
                 self.player.create_projectile(Projectile(start_pos=proj_pos, heading=heading))
                 self.last_shot_time = current_time
 
-            self.destroy_bullets()
+            self.destroy_projectiles()
 
             self.canvas.draw_background()
             self.player.draw_hitbox(self.canvas.get_canvas())
@@ -82,7 +82,7 @@ class Game:
         angle = math.degrees(math.atan2(-heading.y, heading.x))
         return angle, heading
 
-    def destroy_bullets(self):
+    def destroy_projectiles(self):
         for projectile in self.player.projectiles:
             if (projectile.sprite_rect.x < 0
                     or projectile.sprite_rect.x > self.width
