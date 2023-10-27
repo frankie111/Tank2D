@@ -15,6 +15,8 @@ class Game:
         self.height = h
         self.canvas = Canvas(self.width, self.height, "Tank2D")
         self.player = Player(400, 300)
+        self.last_shot_time = 0
+        self.shoot_cooldown = 500
 
     def run(self):
         clock = pygame.time.Clock()
@@ -22,6 +24,8 @@ class Game:
 
         while run:
             clock.tick(60)
+
+            current_time = pygame.time.get_ticks()  # Get the current time in milliseconds
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -53,10 +57,12 @@ class Game:
             angle = self.get_angle()
             self.player.rotate(angle)
 
-            if pygame.mouse.get_pressed()[0]:
+            if (pygame.mouse.get_pressed()[0]
+                    and current_time - self.last_shot_time >= self.shoot_cooldown):
                 # get direction vector
                 heading = self.angle_to_vector(angle)
                 self.player.create_projectile(Projectile(start_pos=self.player.sprite_rect.center, heading=heading))
+                self.last_shot_time = current_time
 
             self.canvas.draw_background()
             self.player.draw_hitbox(self.canvas.get_canvas())

@@ -4,7 +4,7 @@ from entities.Direction import Direction
 
 
 class Player:
-    def __init__(self, start_x, start_y, sprite_path="../resources/tank_sprite.png", scale=(100, 100)):
+    def __init__(self, start_x, start_y, sprite_path="../resources/tank_sprite.png", scale=(29*4, 14*4)):
         self.velocity = 2
         self.rotation_angle = 0
         # load the original sprite
