@@ -2,7 +2,7 @@ import math
 from math import *
 
 import pygame
-from pygame import Vector2
+from pygame import Vector2, Rect
 
 from entities.Direction import Direction
 from entities.Player import Player
@@ -15,7 +15,8 @@ class Game:
         self.width = w
         self.height = h
         self.canvas = Canvas(self.width, self.height, "Tank2D")
-        self.player = Player(400, 300)
+        self.player1 = Player(100, 300)
+        self.player2 = Player(500, 300)
         self.last_shot_time = 0
         self.shoot_cooldown = 50
 
@@ -38,54 +39,62 @@ class Game:
             keys = pygame.key.get_pressed()
 
             if (keys[pygame.K_d]
-                    and self.player.sprite_rect.right <= self.width - self.player.velocity):
-                self.player.move(Direction.RIGHT)
+                    and self.player1.sprite_rect.right <= self.width - self.player1.velocity):
+                self.player1.move(Direction.RIGHT)
 
             if (keys[pygame.K_a]
-                    and self.player.sprite_rect.left >= self.player.velocity):
-                self.player.move(Direction.LEFT)
+                    and self.player1.sprite_rect.left >= self.player1.velocity):
+                self.player1.move(Direction.LEFT)
 
             if (keys[pygame.K_w]
-                    and self.player.sprite_rect.top >= self.player.velocity):
-                self.player.move(Direction.UP)
+                    and self.player1.sprite_rect.top >= self.player1.velocity):
+                self.player1.move(Direction.UP)
 
             if (keys[pygame.K_s]
-                    and self.player.sprite_rect.bottom <= self.height - self.player.velocity):
-                self.player.move(Direction.DOWN)
+                    and self.player1.sprite_rect.bottom <= self.height - self.player1.velocity):
+                self.player1.move(Direction.DOWN)
 
-            self.player.move_projectiles()
+            self.player1.move_projectiles()
 
             angle, heading = self.get_angle_heading()
-            self.player.rotate(angle)
+            self.player1.rotate(angle)
 
             if (pygame.mouse.get_pressed()[0]
                     and current_time - self.last_shot_time >= self.shoot_cooldown):
-                proj_x = self.player.sprite_rect.centerx + self.player.gun_length * cos(radians(angle))
-                proj_y = self.player.sprite_rect.centery - self.player.gun_length * sin(radians(angle))
+                proj_x = self.player1.sprite_rect.centerx + self.player1.gun_length * cos(radians(angle))
+                proj_y = self.player1.sprite_rect.centery - self.player1.gun_length * sin(radians(angle))
                 proj_pos = Vector2(proj_x, proj_y)
                 # self.player.create_projectile(Projectile(start_pos=self.player.sprite_rect.center, heading=heading))
-                self.player.create_projectile(Projectile(start_pos=proj_pos, heading=heading))
+                self.player1.create_projectile(Projectile(start_pos=proj_pos, heading=heading))
                 self.last_shot_time = current_time
 
             self.destroy_projectiles()
+            self.compute_collisions()
 
             self.canvas.draw_background()
-            self.player.draw_hitbox(self.canvas.get_canvas())
-            self.player.draw(self.canvas.get_canvas())
+            self.player1.draw_hitbox(self.canvas.get_canvas())
+            self.player1.draw(self.canvas.get_canvas())
+            self.player2.draw(self.canvas.get_canvas())
+            self.player2.draw_hitbox(self.canvas.get_canvas())
             self.canvas.update()
 
         pygame.quit()
 
     def get_angle_heading(self):
         mouse_pos = pygame.mouse.get_pos()
-        heading = (mouse_pos - Vector2(self.player.sprite_rect.center)).normalize()
+        heading = (mouse_pos - Vector2(self.player1.sprite_rect.center)).normalize()
         angle = math.degrees(math.atan2(-heading.y, heading.x))
         return angle, heading
 
     def destroy_projectiles(self):
-        for projectile in self.player.projectiles:
-            if (projectile.sprite_rect.x < 0
-                    or projectile.sprite_rect.x > self.width
-                    or projectile.sprite_rect.y < 0
-                    or projectile.sprite_rect.y > self.height):
-                self.player.destroy_projectile(projectile)
+        for proj in self.player1.projectiles:
+            if (proj.sprite_rect.x < 0
+                    or proj.sprite_rect.x > self.width
+                    or proj.sprite_rect.y < 0
+                    or proj.sprite_rect.y > self.height):
+                self.player1.destroy_projectile(proj)
+
+    def compute_collisions(self):
+        for proj in self.player1.projectiles:
+            if proj.sprite_rect.colliderect(self.player2.sprite_rect):
+                self.player1.destroy_projectile(proj)
