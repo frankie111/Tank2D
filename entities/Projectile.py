@@ -3,9 +3,9 @@ from pygame import Vector2
 
 
 class Projectile:
-    def __init__(self, start_pos, direction: Vector2, sprite_path="../resources/projectile_sprite.png", scale=(30, 30)):
-        self.velocity = 5
-        self.direction = direction
+    def __init__(self, start_pos, heading: Vector2, sprite_path="../resources/projectile_sprite.png", scale=(30, 30)):
+        self.velocity = 5.0
+        self.direction = heading
         self.original_sprite = pygame.image.load(sprite_path)
 
         if scale:

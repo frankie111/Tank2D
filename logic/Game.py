@@ -9,19 +9,12 @@ from entities.Projectile import Projectile
 from logic.Canvas import Canvas
 
 
-def get_angle(tank_position, mouse_position):
-    x_dist = mouse_position[0] - tank_position[0]
-    y_dist = mouse_position[1] - tank_position[1]
-    angle = math.atan2(y_dist, x_dist)
-    return -math.degrees(angle)
-
-
 class Game:
     def __init__(self, w, h):
         self.width = w
         self.height = h
         self.canvas = Canvas(self.width, self.height, "Tank2D")
-        self.player = Player(50, 100)
+        self.player = Player(400, 300)
 
     def run(self):
         clock = pygame.time.Clock()
@@ -57,17 +50,13 @@ class Game:
 
             self.player.move_projectiles()
 
-            mouse_position = pygame.mouse.get_pos()
-            angle = get_angle(self.player.sprite_rect, mouse_position)
+            angle = self.get_angle()
             self.player.rotate(angle)
 
             if pygame.mouse.get_pressed()[0]:
                 # get direction vector
-                direction = Vector2(float(mouse_position[0] - self.player.sprite_rect.center[0]),
-                                    float(mouse_position[1] - self.player.sprite_rect.center[1]))
-                #normalize direction vector
-                direction = direction.normalize()
-                self.player.create_projectile(Projectile(start_pos=self.player.sprite_rect.center, direction=direction))
+                heading = self.angle_to_vector(angle)
+                self.player.create_projectile(Projectile(start_pos=self.player.sprite_rect.center, heading=heading))
 
             self.canvas.draw_background()
             self.player.draw_hitbox(self.canvas.get_canvas())
@@ -75,3 +64,13 @@ class Game:
             self.canvas.update()
 
         pygame.quit()
+
+    def get_angle(self):
+        mouse_pos = pygame.mouse.get_pos()
+        x_dist = mouse_pos[0] - self.player.sprite_rect.center[0]
+        y_dist = -(mouse_pos[1] - self.player.sprite_rect.center[1])
+        return math.degrees(math.atan2(y_dist, x_dist))
+
+    @staticmethod
+    def angle_to_vector(angle):
+        return Vector2(math.cos(math.radians(angle)), -math.sin(math.radians(angle)))
