@@ -24,7 +24,6 @@ def threaded_client(connection):
     global currentId, pos
     connection.send(str.encode(currentId))
     currentId = "1"
-    reply = ''
 
     while True:
         try:
