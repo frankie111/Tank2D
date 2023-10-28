@@ -2,21 +2,23 @@ import math
 from math import *
 
 import pygame
-from pygame import Vector2, Rect
+from pygame import Vector2
 
-from entities.Direction import Direction
 from entities.Player import Player
 from entities.Projectile import Projectile
 from logic.Canvas import Canvas
+from network.Network import Network
+from utils.Direction import Direction
 
 
 class Game:
     def __init__(self, w, h):
+        self.net = Network()
         self.width = w
         self.height = h
         self.canvas = Canvas(self.width, self.height, "Tank2D")
-        self.player1 = Player(100, 300)
-        self.player2 = Player(500, 300)
+        self.player1 = Player(60, 300)
+        self.player2 = Player(self.width - 60, 300)
         self.last_shot_time = 0
         self.shoot_cooldown = 50
 
@@ -71,6 +73,9 @@ class Game:
             self.destroy_projectiles()
             self.compute_collisions()
 
+            # Send Network stuff
+            self.player2.sprite_rect.x, self.player2.sprite_rect.y = self.parse_data(self.send_data())
+
             self.canvas.draw_background()
             self.player1.draw_hitbox(self.canvas.get_canvas())
             self.player1.draw(self.canvas.get_canvas())
@@ -98,3 +103,16 @@ class Game:
         for proj in self.player1.projectiles:
             if proj.sprite_rect.colliderect(self.player2.sprite_rect):
                 self.player1.destroy_projectile(proj)
+
+    def send_data(self):
+        data = f"{self.net.id}:{self.player1.sprite_rect.x},{self.player1.sprite_rect.y},{self.player1.rotation_angle}"
+        reply = self.net.send(data)
+        return reply
+
+    @staticmethod
+    def parse_data(data):
+        try:
+            d = data.split(":")[1].split(",")
+            return int(d[0]), int(d[1])
+        except:
+            return 0, 0

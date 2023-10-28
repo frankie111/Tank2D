@@ -1,6 +1,6 @@
 import pygame.image
 
-from entities.Direction import Direction
+from utils.Direction import Direction
 
 
 class Player:
