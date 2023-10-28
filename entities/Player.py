@@ -48,9 +48,13 @@ class Player:
         for projectile in self.projectiles:
             projectile.move()
 
-    def rotate(self, angle):
+    def rotate_angle(self, angle):
         self.rotation_angle = angle
         self.sprite = pygame.transform.rotate(self.original_sprite, angle)
+        self.sprite_rect = self.sprite.get_rect(center=self.sprite_rect.center)
+
+    def rotate(self):
+        self.sprite = pygame.transform.rotate(self.original_sprite, self.rotation_angle)
         self.sprite_rect = self.sprite.get_rect(center=self.sprite_rect.center)
 
     def create_projectile(self, proj):

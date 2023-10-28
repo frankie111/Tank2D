@@ -59,7 +59,7 @@ class Game:
             self.player1.move_projectiles()
 
             angle, heading = self.get_angle_heading()
-            self.player1.rotate(angle)
+            self.player1.rotate_angle(angle)
 
             if (pygame.mouse.get_pressed()[0]
                     and current_time - self.last_shot_time >= self.shoot_cooldown):
@@ -75,6 +75,7 @@ class Game:
 
             # Send Network stuff
             self.player2.sprite_rect.x, self.player2.sprite_rect.y, self.player2.rotation_angle = self.parse_data(self.send_data())
+            self.player2.rotate()
 
             self.canvas.draw_background()
             self.player1.draw_hitbox(self.canvas.get_canvas())
@@ -113,6 +114,6 @@ class Game:
     def parse_data(data):
         try:
             d = data.split(":")[1].split(",")
-            return int(d[0]), int(d[1]), int(d[2])
+            return int(d[0]), int(d[1]), float(d[2])
         except:
             return 0, 0
