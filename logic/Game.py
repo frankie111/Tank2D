@@ -57,6 +57,7 @@ class Game:
                 self.player1.move(Direction.DOWN)
 
             self.player1.move_projectiles()
+            self.player2.move_projectiles()
 
             angle, heading = self.get_angle_heading()
             self.player1.rotate_angle(angle)
@@ -78,9 +79,12 @@ class Game:
             self.player2.set_loc_rot(player_loc_rot)
             self.player2.rotate()
             if proj_loc_head:
-                self.player2.create_projectile(
-                    Projectile(start_pos=Vector2(proj_loc_head[0], proj_loc_head[1]),
-                               heading=Vector2(proj_loc_head[2], proj_loc_head[3])))
+                proj = Projectile(start_pos=Vector2(proj_loc_head[0], proj_loc_head[1]),
+                                  heading=Vector2(proj_loc_head[2], proj_loc_head[3]))
+                if len(self.player2.projectiles) == 0:
+                    self.player2.create_projectile(proj)
+                else:
+                    self.player2.projectiles[0] = proj
 
             self.canvas.draw_background()
             self.player1.draw_hitbox(self.canvas.get_canvas())
@@ -126,7 +130,8 @@ class Game:
             player_data = object_data[0].split(",")
             proj_data = object_data[1].split(",") if object_data[1] != "" else None
             player_loc_rot = Vector3(int(player_data[0]), int(player_data[1]), float(player_data[2]))
-            proj_loc_head = (int(proj_data[0]), int(proj_data[1]), int(proj_data[2]), int(proj_data[3])) if proj_data else None
+            proj_loc_head = (
+                int(proj_data[0]), int(proj_data[1]), float(proj_data[2]), float(proj_data[3])) if proj_data else None
             return player_loc_rot, proj_loc_head
         except:
             return None
