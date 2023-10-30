@@ -5,7 +5,7 @@ from pygame import Vector2
 class Projectile:
     def __init__(self, start_pos, heading: Vector2, sprite_path="../resources/projectile_sprite.png", scale=(16, 13)):
         self.velocity = 3.0
-        self.direction = heading
+        self.heading = heading
         self.original_sprite = pygame.image.load(sprite_path)
 
         if scale:
@@ -16,7 +16,7 @@ class Projectile:
         self.sprite_rect.center = (start_pos[0], start_pos[1])
 
         # Rotate the sprite towards direction
-        angle = self.direction.angle_to(Vector2(1, 0))
+        angle = self.heading.angle_to(Vector2(1, 0))
         self.sprite = pygame.transform.rotate(self.original_sprite, angle)
         self.sprite_rect = self.sprite.get_rect(center=self.sprite_rect.center)
 
@@ -24,5 +24,5 @@ class Projectile:
         screen.blit(self.sprite, self.sprite_rect)
 
     def move(self):
-        self.sprite_rect.x += self.direction.x * self.velocity
-        self.sprite_rect.y += self.direction.y * self.velocity
+        self.sprite_rect.x += self.heading.x * self.velocity
+        self.sprite_rect.y += self.heading.y * self.velocity

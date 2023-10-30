@@ -62,3 +62,6 @@ class Player:
 
     def destroy_projectile(self, proj):
         self.projectiles.remove(proj)
+
+    def set_loc_rot(self, loc_rot):
+        self.sprite_rect.x, self.sprite_rect.y, self.rotation_angle = loc_rot

@@ -17,7 +17,7 @@ s.listen(2)
 print("Waiting for connection")
 
 currentId = "0"
-pos = ["0:100,100,0", "1:100,100,0"]
+pos = ["0:100,100,0;", "1:100,100,0;"]
 
 
 def threaded_client(connection):
@@ -33,15 +33,13 @@ def threaded_client(connection):
                 connection.send(str.encode("Goodbye"))
                 break
             else:
-                print(f"Recieved: {reply}")
                 arr = reply.split(":")
                 curr_id = int(arr[0])
                 pos[curr_id] = reply
 
                 next_id = 1 if curr_id == 0 else 0
 
-                reply = pos[next_id][:]
-                print(f"Sending: {reply}")
+                reply = pos[next_id]
 
             connection.sendall(str.encode(reply))
         except socket.error as err:
@@ -52,7 +50,7 @@ def threaded_client(connection):
 
 
 while True:
-    conn, addr = s.accept()
+    conn, addr = s.accept()  # blocking call, waits for a connection
     print(f"Connected to: {addr}")
 
     start_new_thread(threaded_client, (conn,))
