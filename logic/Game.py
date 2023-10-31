@@ -105,10 +105,21 @@ class Game:
                     or bullet.sprite_rect.y > self.height):
                 self.player1.destroy_projectile(bullet)
 
+        for bullet in self.player2.bullets:
+            if (bullet.sprite_rect.x < 0
+                    or bullet.sprite_rect.x > self.width
+                    or bullet.sprite_rect.y < 0
+                    or bullet.sprite_rect.y > self.height):
+                self.player2.destroy_projectile(bullet)
+
     def compute_collisions(self):
         for bullet in self.player1.bullets:
             if bullet.sprite_rect.colliderect(self.player2.sprite_rect):
                 self.player1.destroy_projectile(bullet)
+
+        for bullet in self.player2.bullets:
+            if bullet.sprite_rect.colliderect(self.player1.sprite_rect):
+                self.player2.destroy_projectile(bullet)
 
     def send_data(self):
         data = f"{self.net.id}:{self.player1.sprite_rect.x},{self.player1.sprite_rect.y},{self.player1.rotation_angle};"

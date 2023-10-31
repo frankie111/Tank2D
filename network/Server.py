@@ -17,7 +17,7 @@ s.listen(2)
 print("Waiting for connection")
 
 currentId = "0"
-pos = ["0:100,100,0;", "1:100,500,180;"]
+pos = ["0:100,100,0;", "1:500,100,180;"]
 
 
 def threaded_client(connection):
