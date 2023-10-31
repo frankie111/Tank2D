@@ -22,6 +22,7 @@ class Game:
         self.last_shot_time = 0
         self.shoot_cooldown = 400
         self.bullet_data = ""
+        self.message = ""
 
     def run(self):
         clock = pygame.time.Clock()
@@ -87,8 +88,14 @@ class Game:
             self.player1.draw(self.canvas.get_canvas())
             self.player2.draw(self.canvas.get_canvas())
             self.player2.draw_hitbox(self.canvas.get_canvas())
-            self.canvas.update()
 
+            if self.message != "":
+                if self.message == "You Win!":
+                    self.canvas.draw_text(self.message, 100, self.width / 2 - 200, self.height / 2 - 200, (0, 255, 0))
+                else:
+                    self.canvas.draw_text(self.message, 100, self.width / 2 - 200, self.height / 2 - 200, (255, 0, 0))
+                    
+            self.canvas.update()
         pygame.quit()
 
     def get_angle_heading(self):
@@ -116,10 +123,12 @@ class Game:
         for bullet in self.player1.bullets:
             if bullet.sprite_rect.colliderect(self.player2.sprite_rect):
                 self.player1.destroy_projectile(bullet)
+                self.message = "You Win!"
 
         for bullet in self.player2.bullets:
             if bullet.sprite_rect.colliderect(self.player1.sprite_rect):
                 self.player2.destroy_projectile(bullet)
+                self.message = "You Lose!"
 
     def send_data(self):
         data = f"{self.net.id}:{self.player1.sprite_rect.x},{self.player1.sprite_rect.y},{self.player1.rotation_angle};"
