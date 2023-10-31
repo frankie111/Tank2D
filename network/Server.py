@@ -3,7 +3,7 @@ from _thread import *
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-server = "192.168.1.139"
+server = "192.168.14.174"  # "192.168.1.139"
 port = 5555
 
 server_ip = socket.gethostbyname(server)
@@ -17,7 +17,7 @@ s.listen(2)
 print("Waiting for connection")
 
 currentId = "0"
-pos = ["0:100,100,0;", "1:100,100,0;"]
+pos = ["0:100,100,0;", "1:100,500,180;"]
 
 
 def threaded_client(connection):

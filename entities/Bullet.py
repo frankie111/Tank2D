@@ -2,7 +2,7 @@ import pygame.image
 from pygame import Vector2
 
 
-class Projectile:
+class Bullet:
     def __init__(self, start_pos, heading: Vector2, sprite_path="../resources/projectile_sprite.png", scale=(16, 13)):
         self.velocity = 3.0
         self.heading = heading
@@ -26,3 +26,6 @@ class Projectile:
     def move(self):
         self.sprite_rect.x += self.heading.x * self.velocity
         self.sprite_rect.y += self.heading.y * self.velocity
+
+    def to_loc_head_str(self):
+        return f"{self.sprite_rect.centerx},{self.sprite_rect.centery},{self.heading.x},{self.heading.y};"

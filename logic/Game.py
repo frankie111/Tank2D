@@ -4,8 +4,8 @@ from math import *
 import pygame
 from pygame import Vector2, Vector3
 
+from entities.Bullet import Bullet
 from entities.Player import Player
-from entities.Projectile import Projectile
 from logic.Canvas import Canvas
 from network.Network import Network
 from utils.Direction import Direction
@@ -20,7 +20,8 @@ class Game:
         self.player1 = Player(60, 300)
         self.player2 = Player(self.width - 60, 300)
         self.last_shot_time = 0
-        self.shoot_cooldown = 1000
+        self.shoot_cooldown = 400
+        self.bullet_data = ""
 
     def run(self):
         clock = pygame.time.Clock()
@@ -56,35 +57,30 @@ class Game:
                     and self.player1.sprite_rect.bottom <= self.height - self.player1.velocity):
                 self.player1.move(Direction.DOWN)
 
-            self.player1.move_projectiles()
-            self.player2.move_projectiles()
+            self.player1.move_bullets()
+            self.player2.move_bullets()
 
             angle, heading = self.get_angle_heading()
             self.player1.rotate_angle(angle)
 
             if (pygame.mouse.get_pressed()[0]
                     and current_time - self.last_shot_time >= self.shoot_cooldown):
-                proj_x = self.player1.sprite_rect.centerx + self.player1.gun_length * cos(radians(angle))
-                proj_y = self.player1.sprite_rect.centery - self.player1.gun_length * sin(radians(angle))
-                proj_pos = Vector2(proj_x, proj_y)
-                # self.player.create_projectile(Projectile(start_pos=self.player.sprite_rect.center, heading=heading))
-                self.player1.create_projectile(Projectile(start_pos=proj_pos, heading=heading))
+                bull_x = self.player1.sprite_rect.centerx + self.player1.gun_length * cos(radians(angle))
+                bull_y = self.player1.sprite_rect.centery - self.player1.gun_length * sin(radians(angle))
+                bull_pos = Vector2(bull_x, bull_y)
+                bullet = Bullet(start_pos=bull_pos, heading=heading)
+                self.player1.create_bullet(bullet)
+                self.bullet_data += bullet.to_loc_head_str()
                 self.last_shot_time = current_time
 
-            self.destroy_projectiles()
+            self.destroy_bullets()
             self.compute_collisions()
 
             # Send Network stuff
-            player_loc_rot, proj_loc_head = self.parse_data(self.send_data())
+            player_loc_rot, bullets = self.parse_data(self.send_data())
+            self.player2.create_projectiles(bullets)
             self.player2.set_loc_rot(player_loc_rot)
             self.player2.rotate()
-            if proj_loc_head:
-                proj = Projectile(start_pos=Vector2(proj_loc_head[0], proj_loc_head[1]),
-                                  heading=Vector2(proj_loc_head[2], proj_loc_head[3]))
-                if len(self.player2.projectiles) == 0:
-                    self.player2.create_projectile(proj)
-                else:
-                    self.player2.projectiles[0] = proj
 
             self.canvas.draw_background()
             self.player1.draw_hitbox(self.canvas.get_canvas())
@@ -101,25 +97,24 @@ class Game:
         angle = math.degrees(math.atan2(-heading.y, heading.x))
         return angle, heading
 
-    def destroy_projectiles(self):
-        for proj in self.player1.projectiles:
-            if (proj.sprite_rect.x < 0
-                    or proj.sprite_rect.x > self.width
-                    or proj.sprite_rect.y < 0
-                    or proj.sprite_rect.y > self.height):
-                self.player1.destroy_projectile(proj)
+    def destroy_bullets(self):
+        for bullet in self.player1.bullets:
+            if (bullet.sprite_rect.x < 0
+                    or bullet.sprite_rect.x > self.width
+                    or bullet.sprite_rect.y < 0
+                    or bullet.sprite_rect.y > self.height):
+                self.player1.destroy_projectile(bullet)
 
     def compute_collisions(self):
-        for proj in self.player1.projectiles:
-            if proj.sprite_rect.colliderect(self.player2.sprite_rect):
-                self.player1.destroy_projectile(proj)
+        for bullet in self.player1.bullets:
+            if bullet.sprite_rect.colliderect(self.player2.sprite_rect):
+                self.player1.destroy_projectile(bullet)
 
     def send_data(self):
         data = f"{self.net.id}:{self.player1.sprite_rect.x},{self.player1.sprite_rect.y},{self.player1.rotation_angle};"
-        if len(self.player1.projectiles) > 0:
-            proj = self.player1.projectiles[0]
-            data += f"{proj.sprite_rect.x},{proj.sprite_rect.y},{proj.heading.x},{proj.heading.y}"
+        data += self.bullet_data
         reply = self.net.send(data)
+        self.bullet_data = ""
         return reply
 
     @staticmethod
@@ -128,10 +123,14 @@ class Game:
             data = data.split(":")[1]
             object_data = data.split(";")
             player_data = object_data[0].split(",")
-            proj_data = object_data[1].split(",") if object_data[1] != "" else None
+            bullets = []
+            for bullet_data in object_data[1:]:
+                if bullet_data != "":
+                    bullet_data = bullet_data.split(",")
+                    bullets.append(Bullet(start_pos=Vector2(int(bullet_data[0]), int(bullet_data[1])),
+                                          heading=Vector2(float(bullet_data[2]), float(bullet_data[3]))))
+
             player_loc_rot = Vector3(int(player_data[0]), int(player_data[1]), float(player_data[2]))
-            proj_loc_head = (
-                int(proj_data[0]), int(proj_data[1]), float(proj_data[2]), float(proj_data[3])) if proj_data else None
-            return player_loc_rot, proj_loc_head
+            return player_loc_rot, bullets
         except:
             return None

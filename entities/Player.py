@@ -18,11 +18,11 @@ class Player:
         self.sprite_rect = self.sprite.get_rect()
         self.sprite_rect.center = (start_x, start_y)
 
-        self.projectiles = []
+        self.bullets = []
 
     def draw(self, screen):
         screen.blit(self.sprite, self.sprite_rect)  # Draw the tank sprite in the pos of sprite_rect
-        for projectile in self.projectiles:
+        for projectile in self.bullets:
             projectile.draw(screen)
 
     def draw_hitbox(self, screen):
@@ -44,8 +44,8 @@ class Player:
         if direction == Direction.DOWN:
             self.sprite_rect.y += self.velocity
 
-    def move_projectiles(self):
-        for projectile in self.projectiles:
+    def move_bullets(self):
+        for projectile in self.bullets:
             projectile.move()
 
     def rotate_angle(self, angle):
@@ -57,11 +57,15 @@ class Player:
         self.sprite = pygame.transform.rotate(self.original_sprite, self.rotation_angle)
         self.sprite_rect = self.sprite.get_rect(center=self.sprite_rect.center)
 
-    def create_projectile(self, proj):
-        self.projectiles.append(proj)
+    def create_bullet(self, bullet):
+        self.bullets.append(bullet)
+
+    def create_projectiles(self, bullets):
+        for bullet in bullets:
+            self.bullets.append(bullet)
 
     def destroy_projectile(self, proj):
-        self.projectiles.remove(proj)
+        self.bullets.remove(proj)
 
     def set_loc_rot(self, loc_rot):
         self.sprite_rect.x, self.sprite_rect.y, self.rotation_angle = loc_rot
