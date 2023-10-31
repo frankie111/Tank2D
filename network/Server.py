@@ -3,7 +3,7 @@ from _thread import *
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-server = "192.168.14.174"  # "192.168.1.139"
+server = "192.168.1.139"  # "192.168.14.174"  #
 port = 5555
 
 server_ip = socket.gethostbyname(server)

@@ -20,9 +20,12 @@ class Game:
         self.player1 = Player(60, 300)
         self.player2 = Player(self.width - 60, 300)
         self.last_shot_time = 0
-        self.shoot_cooldown = 400
+        self.shoot_cooldown = 3000
         self.bullet_data = ""
         self.message = ""
+        pygame.mixer.init()
+        self.shooting_sound = pygame.mixer.Sound("../resources/shooting_sound.wav")
+        self.shooting_sound.set_volume(0.1)
 
     def run(self):
         clock = pygame.time.Clock()
@@ -73,6 +76,7 @@ class Game:
                 self.player1.create_bullet(bullet)
                 self.bullet_data += bullet.to_loc_head_str()
                 self.last_shot_time = current_time
+                self.shooting_sound.play()
 
             self.destroy_bullets()
             self.compute_collisions()
@@ -84,19 +88,20 @@ class Game:
             self.player2.rotate()
 
             self.canvas.draw_background()
-            self.player1.draw_hitbox(self.canvas.get_canvas())
+            # self.player1.draw_hitbox(self.canvas.get_canvas())
             self.player1.draw(self.canvas.get_canvas())
             self.player2.draw(self.canvas.get_canvas())
-            self.player2.draw_hitbox(self.canvas.get_canvas())
+            # self.player2.draw_hitbox(self.canvas.get_canvas())
 
             if self.message != "":
                 if self.message == "You Win!":
                     self.canvas.draw_text(self.message, 100, self.width / 2 - 200, self.height / 2 - 200, (0, 255, 0))
                 else:
                     self.canvas.draw_text(self.message, 100, self.width / 2 - 200, self.height / 2 - 200, (255, 0, 0))
-                    
+
             self.canvas.update()
         pygame.quit()
+        pygame.mixer.quit()
 
     def get_angle_heading(self):
         mouse_pos = pygame.mouse.get_pos()
