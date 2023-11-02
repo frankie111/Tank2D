@@ -86,6 +86,8 @@ class Game:
             self.player2.create_projectiles(bullets)
             self.player2.set_loc_rot(player_loc_rot)
             self.player2.rotate()
+            if len(bullets) != 0:
+                self.shooting_sound.play()
 
             self.canvas.draw_background()
             # self.player1.draw_hitbox(self.canvas.get_canvas())
